@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DINAMITA GYM POS</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=4.0.1"/>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <img id="brandLogo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyMjAnIGhlaWdodD0nNTQnIHZpZXdCb3g9JzAgMCAyMjAgNTQnPgogIDxyZWN0IHdpZHRoPScyMjAnIGhlaWdodD0nNTQnIHJ4PScxMCcgZmlsbD0nI2ZmZicvPgogIDxyZWN0IHg9JzQnIHk9JzQnIHdpZHRoPScyMTInIGhlaWdodD0nNDYnIHJ4PSc4JyBmaWxsPScjZDAwJyBvcGFjaXR5PScwLjA4Jy8+CiAgPHRleHQgeD0nMTInIHk9JzM0JyBmb250LXNpemU9JzE4JyBmb250LWZhbWlseT0nQXJpYWwgQmxhY2ssIEFyaWFsJyBmaWxsPScjMTExJz5ESU5BTUlUQSBHWU08L3RleHQ+CiAgPHRleHQgeD0nMTUwJyB5PSczNCcgZm9udC1zaXplPScxNicgZm9udC1mYW1pbHk9J0FyaWFsIEJsYWNrLCBBcmlhbCcgZmlsbD0nI2QwMCc+UE9TPC90ZXh0Pgo8L3N2Zz4=" />
+      <div class="brand-title">DINAMITA GYM POS</div>
+      <small class="brand-sub">v4.0.1 • 2025-09-06 14:29</small>
+    </div>
+    <nav class="menu">
+      <button data-view="dashboard" class="active">🏠 Dashboard</button>
+      <button data-view="ventas">🛒 Ventas</button>
+      <button data-view="inventario">📦 Inventario</button>
+      <button data-view="clientes">👤 Clientes</button>
+      <button data-view="membresias">🎟️ Membresías</button>
+      <button data-view="cafeteria">☕ Cafetería</button>
+      <button data-view="historial">📜 Historial</button>
+      <button data-view="config">⚙️ Configuración</button>
+      <button data-view="ticket">🧾 Ticket 58mm</button>
+    </nav>
+  </aside>
+
+  <main id="main">
+    <div class="backdrop"></div>
+    <header class="topbar">
+      <button id="hamburger" class="hamburger">☰</button>
+      <h1 id="viewTitle">Dashboard</h1>
+      <div class="spacer"></div>
+      <button id="backupBtn" class="btn small" onclick="Config.export()">💾 Exportar respaldo</button>
+      <label class="btn small outline no-print"><input id="restoreInput" type="file" accept=".json" hidden onchange="Config.import(this)">📥 Importar respaldo</label>
+    </header>
+
+    <section id="view-dashboard" class="view"><div id="dashboardMount"></div></section>
+    <section id="view-ventas" class="view hidden"><div class="panel"><div class="panel-title">🛍️ Nueva venta</div><div id="ventasMount"></div></div></section>
+    <section id="view-inventario" class="view hidden"><div class="panel"><div class="panel-title">📦 Inventario</div><div id="inventarioMount"></div></div></section>
+    <section id="view-clientes" class="view hidden"><div class="panel"><div class="panel-title">👤 Clientes</div><div id="clientesMount"></div></div></section>
+    <section id="view-membresias" class="view hidden"><div class="panel"><div class="panel-title">🎟️ Membresías</div><div id="membresiasMount"></div></div></section>
+    <section id="view-cafeteria" class="view hidden"><div class="panel"><div class="panel-title">☕ Cafetería</div><div id="cafeteriaMount"></div></div></section>
+    <section id="view-historial" class="view hidden"><div class="panel"><div class="panel-title">📜 Historial</div><div id="historialMount"></div></div></section>
+    <section id="view-config" class="view hidden"><div class="panel"><div class="panel-title">⚙️ Configuración</div><div id="configMount"></div></div></section>
+    <section id="view-ticket" class="view hidden"><div class="panel"><div class="panel-title">🧾 Ticket 58mm</div><div id="ticketMount"></div><div class="right mt-2"><button class="btn" onclick="Tickets.print()">🖨️ Imprimir</button></div></div></section>
+  </main>
+</div>
+<script>const APP_BRAND="DINAMITA GYM POS";</script>
+<script src="app.js?v=4.0.1"></script>
+</body>
+</html>

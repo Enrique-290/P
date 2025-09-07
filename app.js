@@ -335,3 +335,44 @@ if(window.Tickets){
     setTimeout(()=>{ h.innerHTML=''; }, 500);
   };
 }
+
+// === v4.1.4 bootstrap hardening ===
+(function(){
+  const SPN = document.getElementById('bootSpinner');
+  function hideSpinner(){ if(SPN){ SPN.style.display='none'; } }
+  function safeParse(k, def){
+    try { const v = localStorage.getItem(k); return v? JSON.parse(v) : def; } catch(e){ return def; }
+  }
+  // Ensure global state exists
+  window.state = window.state || {};
+  state.inventario = Array.isArray(state.inventario)? state.inventario : safeParse('inventario', []);
+  state.ventas     = Array.isArray(state.ventas)    ? state.ventas     : safeParse('ventas', []);
+  state.clientes   = Array.isArray(state.clientes)  ? state.clientes   : safeParse('clientes', []);
+  state.config     = state.config || safeParse('config', {iva:0,msgTicket:'¡Gracias por tu compra en DINAMITA GYM POS!'});
+
+  // Mount dashboard even if arrays are empty
+  function mountDashboardSafe(){
+    try{
+      if(window.Views && Views.dashboard){ Views.dashboard(); }
+      else if(typeof mountDashboard==='function'){ mountDashboard(); }
+      else {
+        const root = document.getElementById('app') || document.body;
+        const c = document.createElement('div');
+        c.innerHTML = '<div style="padding:16px">Dashboard listo.</div>';
+        root.appendChild(c);
+      }
+    }catch(e){ console.error('mountDashboardSafe error', e); }
+    hideSpinner();
+  }
+
+  // Ensure listeners for export buttons exist
+  window.addEventListener('DOMContentLoaded', ()=>{
+    setTimeout(()=>{
+      // If router not set, fallback to dashboard
+      try {
+        if(window.Router && Router.goto){ Router.goto('dashboard'); }
+      } catch(e){}
+      mountDashboardSafe();
+    },0);
+  });
+})();

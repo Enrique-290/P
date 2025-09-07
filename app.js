@@ -376,3 +376,52 @@ if(window.Tickets){
     },0);
   });
 })();
+
+// === v4.1.5: Debug overlay + defensive mounts ===
+(function(){
+  const ov = document.getElementById('dbgOverlay');
+  const pre = document.getElementById('dbgMsg');
+  const where = document.getElementById('dbgWhere');
+  const btn = document.getElementById('dbgClose');
+  if(btn){ btn.addEventListener('click', ()=>{ ov.style.display='none'; }); }
+  function showErrorLugar(lugar, err){
+    try{
+      if(!ov) return alert((lugar?lugar+': ':'') + (err && err.stack ? err.stack : String(err)));
+      where.textContent = lugar? ('Módulo: '+lugar) : '';
+      pre.textContent = (err && err.stack) ? err.stack : String(err);
+      ov.style.display='flex';
+      console.error('[DINAMITA POS] '+lugar, err);
+    }catch(e){ console.error('showErrorLugar failed', e); }
+  }
+  // Exponer globalmente para usar desde otros módulos
+  window.__dbgShow = showErrorLugar;
+
+  // Envolver views comunes si existen
+  function wrap(name){
+    try{
+      const parts = name.split('.');
+      let obj = window;
+      for(let i=0;i<parts.length-1;i++){ obj = obj && obj[parts[i]]; }
+      const key = parts[parts.length-1];
+      if(!obj || typeof obj[key] !== 'function') return;
+      const orig = obj[key];
+      obj[key] = function(){
+        try { return orig.apply(this, arguments); }
+        catch(e){ showErrorLugar(name, e); /* fallback mínimo */ 
+          const root = document.getElementById('app') || document.body;
+          const c = document.createElement('div');
+          c.style.padding='16px';
+          c.innerHTML = '<b>'+name+'</b> no pudo cargar. Revisa el error y vuelve a intentar.';
+          root.appendChild(c);
+        }
+      };
+    }catch(e){/* ignore */}
+  }
+
+  ['Views.dashboard','Views.ventas','Views.inventario','Views.clientes','Views.membresias','Views.cafeteria','Views.historial','Views.config','Views.ticket58']
+    .forEach(wrap);
+
+  // Capturar errores globales
+  window.addEventListener('error', ev=>{ showErrorLugar('Global', ev.error||ev.message); });
+  window.addEventListener('unhandledrejection', ev=>{ showErrorLugar('Promise', ev.reason||ev); });
+})();

@@ -67,3 +67,19 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
   .ticket58{ width:58mm !important; margin:0 !important; padding:0 !important; border:0 !important; }
   .ticket58 pre{ white-space:pre-wrap !important; margin:0 !important; }
 }
+
+
+/* === v4.1.3: Thermal 58mm print fix === */
+.ticket58 { width: 58mm; max-width: 58mm; margin: 0 auto; }
+.ticket58 img { display:block; max-width: 54mm; margin: 0 auto 4px; }
+#ticketOnly.ticket58 { width:58mm; padding:2mm; }
+
+@media print {
+  body { margin:0; }
+  .no-print { display: none !important; }
+  body * { visibility: hidden !important; }
+  #printHolder, #printHolder * { visibility: visible !important; }
+  #printHolder { display:block !important; position: static !important; }
+  #ticketOnly.ticket58 { width:58mm !important; }
+  @page { size: 58mm auto; margin: 0; }
+}

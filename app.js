@@ -242,3 +242,96 @@
   function mountAll(){ mountDashboard(); mountVentas(); mountInventario(); mountClientes(); mountMembresias(); mountCafeteria(); mountHistorial(); mountConfig(); mountTicket(); }
   mountAll(); show('dashboard');
 })();
+
+// === v4.1.3 additions ===
+
+// Date helpers
+function fmtD(d){return new Date(d).toISOString().slice(0,10)}
+function rangeFilterVentas(desde,hasta){
+  const d0 = desde ? new Date(desde+'T00:00:00') : new Date('1970-01-01T00:00:00');
+  const d1 = hasta ? new Date(hasta+'T23:59:59') : new Date('2999-12-31T23:59:59');
+  return state.ventas.filter(v=>{ const t = new Date(v.fecha); return t>=d0 && t<=d1; });
+}
+function ventasCSV(desde,hasta){
+  const ventas = rangeFilterVentas(desde,hasta);
+  const rows = [['Folio','Fecha','Cliente','SKU','Producto','Cant','Precio','Subtotal','IVA','Total','Notas','Categoría']];
+  ventas.forEach(v=>{
+    v.items.forEach(it=>{
+      const inv = state.inventario.find(p=>p.sku===it.sku) || {};
+      rows.push([v.folio, v.fecha.replace('T',' ')[:19], v.clienteNombre||'', it.sku, it.nombre, it.cant, it.precio, v.subtotal, v.iva, v.total, (v.notas||'').replace(/\\n/g,' '), inv.categoria||'']);
+    });
+  });
+  downloadCSV('ventas_'+(desde||'inicio')+'_'+(hasta||'hoy')+'.csv', rows);
+}
+function ventasPDF(desde,hasta){
+  const ventas = rangeFilterVentas(desde,hasta);
+  // Agrupar por categoría
+  const byCat = {};
+  ventas.forEach(v=>{
+    v.items.forEach(it=>{
+      const inv = state.inventario.find(p=>p.sku===it.sku) || {};
+      const cat = inv.categoria || 'Sin categoría';
+      byCat[cat] = byCat[cat] || [];
+      byCat[cat].push({v,it,importe:it.precio*it.cant});
+    });
+  });
+  const tot = ventas.reduce((a,b)=>a+b.total,0);
+  const win = window.open('', '_blank');
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let html = `<!doctype html><html><head><meta charset="utf-8"><title>Reporte de ventas</title>
+    <style>
+      body{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding:16px;}
+      h1{margin:0 0 8px 0;} .meta{margin-bottom:12px;}
+      table{width:100%; border-collapse:collapse; margin-bottom:18px;}
+      th,td{border-bottom:1px solid #ddd; padding:6px 4px; text-align:left; font-size:13px;}
+      tfoot td{font-weight:700;}
+      .cat{background:#f8f8f8; font-weight:700;}
+      @media print{@page{size:A4;margin:12mm}}
+    </style></head><body>`;
+  html += `<h1>Reporte de ventas</h1>
+           <div class="meta"><div>Rango: ${esc(desde||'Inicio')} — ${esc(hasta||'Hoy')}</div>
+           <div>Generado: ${new Date().toLocaleString()}</div></div>`;
+  Object.keys(byCat).sort().forEach(cat=>{
+    html += `<table><thead><tr class="cat"><th colspan="6">${esc(cat)}</th></tr>
+             <tr><th>Fecha</th><th>Folio</th><th>Producto</th><th>Cant</th><th>Precio</th><th>Importe</th></tr></thead><tbody>`;
+    let sum=0;
+    byCat[cat].forEach(r=>{
+      sum += r.importe;
+      html += `<tr><td>${esc(r.v.fecha.replace('T',' ').slice(0,19))}</td><td>${esc(r.v.folio)}</td>
+               <td>${esc(r.it.nombre)}</td><td>${r.it.cant}</td><td>$${r.it.precio.toFixed(2)}</td><td>$${r.importe.toFixed(2)}</td></tr>`;
+    });
+    html += `</tbody><tfoot><tr><td colspan="5">Subtotal categoría</td><td>$${sum.toFixed(2)}</td></tr></tfoot></table>`;
+  });
+  html += `<h3>Total ventas: $${tot.toFixed(2)}</h3>`;
+  html += `</body></html>`;
+  win.document.write(html); win.document.close(); win.focus(); win.print();
+}
+
+// Attach fixed bar events
+window.addEventListener('DOMContentLoaded', ()=>{
+  const csvBtn = document.getElementById('btnExportCSV');
+  const pdfBtn = document.getElementById('btnExportPDF');
+  if(csvBtn && pdfBtn){
+    const askRange = ()=>{
+      const desde = prompt('Desde (YYYY-MM-DD) — deja vacío para todo:' , '');
+      const hasta = prompt('Hasta (YYYY-MM-DD) — deja vacío para hoy:' , '');
+      return {desde, hasta};
+    };
+    csvBtn.addEventListener('click', ()=>{ const {desde,hasta}=askRange(); ventasCSV(desde,hasta); });
+    pdfBtn.addEventListener('click', ()=>{ const {desde,hasta}=askRange(); ventasPDF(desde,hasta); });
+  }
+});
+
+// Strengthen printing to avoid blanco
+const _origPrint = window.Tickets && window.Tickets.print;
+if(window.Tickets){
+  window.Tickets.print = function(){
+    let h=document.getElementById('printHolder');
+    if(!h){ h=document.createElement('div'); h.id='printHolder'; document.body.appendChild(h); }
+    h.innerHTML = window.__lastTicketHTML__||'';
+    // Force layout before print
+    h.offsetHeight;
+    window.print();
+    setTimeout(()=>{ h.innerHTML=''; }, 500);
+  };
+}

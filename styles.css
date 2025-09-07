@@ -91,3 +91,12 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
 #dbgCard h3{margin:0 0 6px 0;color:#b00020}
 #dbgCard pre{white-space:pre-wrap;word-break:break-word;max-height:45vh;overflow:auto;background:#fff3f3;border:1px dashed #f4b4b4;padding:8px;border-radius:8px}
 #dbgClose{float:right;cursor:pointer;padding:4px 8px;border-radius:8px;border:1px solid #b00020;background:#fff;color:#b00020}
+
+
+/* === v4.2.0-debug: On-screen console === */
+#consPane{position:fixed;left:8px;right:8px;bottom:8px;height:30vh;display:none;z-index:99998;background:#0b0f14;color:#d1e7ff;border:1px solid #355;box-shadow:0 6px 24px rgba(0,0,0,.35);border-radius:10px;overflow:auto;padding:8px;font:12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+#consPane .l{white-space:pre-wrap;margin:0 0 4px 0}
+#consPane .err{color:#ffb3b3}
+#consPane .warn{color:#ffd9a6}
+#consToggle{position:fixed;right:12px;bottom:12px;z-index:99999;background:#111;color:#fff;border:1px solid #444;border-radius:999px;padding:8px 10px;font:12px system-ui;opacity:.8}
+#consToggle:hover{opacity:1}

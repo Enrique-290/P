@@ -1,4 +1,56 @@
 
+// === v4.2.0-debug: Early console mirror & error hooks ===
+(function(){
+  var pane, btn;
+  function ensurePane(){
+    pane = document.getElementById('consPane');
+    btn  = document.getElementById('consToggle');
+    if(btn && !btn._wired){
+      btn._wired = true;
+      btn.addEventListener('click', ()=>{
+        if(!pane) return;
+        pane.style.display = pane.style.display==='block' ? 'none' : 'block';
+      });
+    }
+  }
+  function addLine(msg, cls){
+    ensurePane();
+    if(!pane) return;
+    var d = document.createElement('div');
+    d.className = 'l ' + (cls||'');
+    d.textContent = msg;
+    pane.appendChild(d);
+    pane.scrollTop = pane.scrollHeight;
+  }
+  // Mirror console methods
+  ['log','warn','error','info'].forEach(function(k){
+    var orig = console[k];
+    console[k] = function(){
+      try{
+        var txt = Array.prototype.map.call(arguments, function(a){
+          try{ return (typeof a==='string')? a : JSON.stringify(a); }catch(e){ return String(a); }
+        }).join(' ');
+        addLine('['+k.toUpperCase()+'] '+txt, k==='error'?'err':(k==='warn'?'warn':''));
+      }catch(e){}
+      return orig.apply(console, arguments);
+    };
+  });
+  // Global error hooks
+  window.addEventListener('error', function(ev){
+    addLine('[ERROR global] ' + (ev && (ev.message||ev.error)), 'err');
+  });
+  window.addEventListener('unhandledrejection', function(ev){
+    addLine('[REJECTION] ' + (ev && (ev.reason||ev)), 'err');
+  });
+  // Startup log beacons
+  addLine('App bootstrap iniciado v4.2.0-debug');
+  document.addEventListener('DOMContentLoaded', function(){ addLine('DOMContentLoaded fired'); });
+  window.addEventListener('load', function(){ addLine('window.load fired'); });
+  // Expose quick log
+  window.__log = addLine;
+})();
+
+
 (function(){
   const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const LS="dgpos_v412";
@@ -425,3 +477,7 @@ if(window.Tickets){
   window.addEventListener('error', ev=>{ showErrorLugar('Global', ev.error||ev.message); });
   window.addEventListener('unhandledrejection', ev=>{ showErrorLugar('Promise', ev.reason||ev); });
 })();
+
+
+// v4.2.0-debug: end marker
+try{ if(window.__log) __log('Script principal cargado OK'); }catch(_){}

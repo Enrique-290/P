@@ -36,13 +36,15 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
 .badge{display:inline-block;padding:2px 6px;border-radius:999px;border:1px solid var(--border);font-size:11px;color:#444;background:#fff}
 /* Modal */
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:20}
-.modal .modal-content{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;width:min(800px,92vw)}
+.modal .modal-content{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;width:min(900px,92vw)}
 .modal .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .modal .modal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
 .modal.show{display:flex}
 /* Drawer mobile */
 .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.30);z-index:9;display:none}
+/* Bottom actions bar (fixed) */
+.bottom-actions{position:sticky;bottom:0;z-index:6;background:#fff;border-top:1px solid var(--border);padding:10px;display:flex;gap:8px;justify-content:flex-end}
 @media (max-width:1060px){
   #app{grid-template-columns:1fr}
   .sidebar{position:fixed;left:0;top:0;bottom:0;width:80vw;max-width:320px;transform:translateX(-105%);transition:transform .2s ease;z-index:10}
@@ -51,12 +53,17 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);bor
   .cards{grid-template-columns:1fr}
   .grid-3{grid-template-columns:1fr}
   .grid-2{grid-template-columns:1fr}
+  .table .row{grid-template-columns:1fr;gap:4px}  /* tablas -> lista en móvil */
 }
-/* Ticket 58mm */
-.ticket{border:1px dashed var(--red);padding:10px;background:#fff}
-.ticket .t-title{font-weight:800;text-align:center}
-@media print{
-  html,body{width:58mm;margin:0;font-family:monospace;font-size:12px;line-height:1.3}
-  .ticket{width:58mm;margin:0;border:none;padding:0}
-  .no-print{display:none}
+/* Ticket 58mm + print-only */
+@page { size: 58mm auto; margin: 0; }
+.ticket58 { width: 58mm; background:#fff; }
+.ticket58 img { display:block; width:58mm; height:auto; margin:0 auto 4px auto; }
+@media print {
+  html,body{width:58mm !important;margin:0 !important;padding:0 !important;background:#fff !important;
+    font-family: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace !important; font-size:12px !important; line-height:1.3 !important;}
+  .sidebar, .topbar, .menu, .btn, .no-print, .panel-title, header, nav, .cards, .view > :not(#ticketOnly){ display:none !important; visibility:hidden !important; height:0 !important; }
+  #ticketOnly{ display:block !important; width:58mm !important; margin:0 !important; padding:0 !important; border:0 !important; }
+  .ticket58{ width:58mm !important; margin:0 !important; padding:0 !important; border:0 !important; }
+  .ticket58 pre{ white-space:pre-wrap !important; margin:0 !important; }
 }

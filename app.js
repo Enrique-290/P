@@ -110,13 +110,11 @@
   // Mounts
   function mountAll(){mountDashboard();mountVentas();mountInventario();mountClientes();mountMembresias();mountCafeteria();mountHistorial();mountConfig()}
   function mountCafeteria(){const grid=$('#cafeteriaMount');const caf=state.inventario.filter(p=>p.categoria==='Cafetería');grid.innerHTML='<div class="catalog">'+caf.map(p=>`<div class="item"><div style="font-weight:700">${p.nombre}</div><div>${money(p.precio)}</div><button class="btn small" onclick="Ventas.add('${p.sku}')">Agregar</button></div>`).join('')+'</div><div class="right mt-2"><button class="btn" onclick="document.querySelector('[data-view=ventas]').click()">Ir a cobrar</button></div>'}
-  function mountHistorial(){/* defined above */}
   // Navigation
   $('.menu').addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(!b)return;show(b.dataset.view)});
   document.addEventListener('DOMContentLoaded',()=>{const btn=$('#hamburger');const bd=document.body;let backdrop=$('.backdrop');if(!backdrop){backdrop=document.createElement('div');backdrop.className='backdrop';document.body.appendChild(backdrop)}const close=()=>bd.classList.remove('drawer-open');if(btn)btn.addEventListener('click',()=>bd.classList.toggle('drawer-open'));backdrop.addEventListener('click',close)});
   // Helpers
   window.downloadCSV=function(filename,rows){const csv=rows.map(r=>r.map(x=>{x=(x==null?'':String(x));if(x.includes(',')||x.includes('"')||x.includes('\n'))x='"'+x.replace(/"/g,'""')+'"';return x}).join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click()};
   // Init
-  function mountCafeteria(){}; // placeholder already defined above
   mountAll();show('dashboard');
 })();
